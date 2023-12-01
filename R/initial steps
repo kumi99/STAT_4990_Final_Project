@@ -1,7 +1,7 @@
-```{r}
+library(quantmod)
 # Download data from yahoo Finance!
-start.date = '2014-01-01' # starting date of stock
-end.date = '2018-12-31' # ending date of stock
+start.date = '2021-10-01' # starting date of stock
+end.date = '2023-11-30' # ending date of stock
 # Download the selected stocks from Yahoo finance using `quantmod` package
 getSymbols("DJI", src = "yahoo", from = start.date, to = end.date, auto.assign = TRUE)
 
@@ -21,8 +21,3 @@ mutate(day = row_number()) |>
 update_tsibble(index = day, regular = TRUE) 
 
 DJI
-
-#Create train and test sets for GOOG
-DJI_train <- TSLA |>  filter(yearmonth(Date) <= yearmonth("2023 Sept"))
-DJI_test <- TSLA |> filter(yearmonth(Date) > yearmonth("2023 Oct"))
-```
