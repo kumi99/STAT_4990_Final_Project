@@ -1,23 +1,25 @@
+library(quantmod)
+# Download data from yahoo Finance!
+start.date = '2020-10-01' # starting date of stock
+end.date = '2023-11-30' # ending date of stock
+# Download the selected stocks from Yahoo finance using `quantmod` package
+getSymbols("^DJI", src = "yahoo", from = start.date, to = end.date, auto.assign = TRUE)
 
-```{r data preparation}
-library(readr) # to read csv 
-library(dplyr) # for pipe operator 
-library(tsibble)
-library(tibble)
+# Get close price 
+close_price = DJI$DJI.Close
+head(close_price)
 
-# Read CSV file into a data frame
-# assure path to Dataset is in '/'
-data <- read_csv("C:/Users/liewg/Desktop/stat4990_project_nov_30/walmart-sales-dataset-of-45stores.csv")
+# Create date variable
+DJI <- zoo::fortify.zoo(DJI)
+DJI <- DJI %>% rename(c("Date" = "Index", "Close" = "DJI.Close"))
 
-# View the first few rows of the data
-head(data)
+# create a tsibble 
+DJI<- as_tsibble(DJI, index = Date)
 
-# convert str date to a proper format, convert tibble to tsibble 
-walmart_data <- data %>%
-  mutate(Week_date = as.Date(Date, format = "%d-%m-%Y")) %>%
-  rowid_to_column("ID")  %>%
-  as_tsibble(index = Week_date, key = ID)
+# 
+DJI <- DJI |>
+  mutate(day = row_number()) |>
+  update_tsibble(index = day, regular = TRUE) 
 
-# print the head of data 
-head(walmart_data) 
-```
+tail(DJI)
+DJI |> autoplot(DJI.Adjusted)
