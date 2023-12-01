@@ -1,1 +1,23 @@
 
+```{r data preparation}
+library(readr) # to read csv 
+library(dplyr) # for pipe operator 
+library(tsibble)
+library(tibble)
+
+# Read CSV file into a data frame
+# assure path to Dataset is in '/'
+data <- read_csv("C:/Users/liewg/Desktop/stat4990_project_nov_30/walmart-sales-dataset-of-45stores.csv")
+
+# View the first few rows of the data
+head(data)
+
+# convert str date to a proper format, convert tibble to tsibble 
+walmart_data <- data %>%
+  mutate(Week_date = as.Date(Date, format = "%d-%m-%Y")) %>%
+  rowid_to_column("ID")  %>%
+  as_tsibble(index = Week_date, key = ID)
+
+# print the head of data 
+head(walmart_data) 
+```
