@@ -1,0 +1,28 @@
+```{r}
+# Download data from yahoo Finance!
+start.date = '2014-01-01' # starting date of stock
+end.date = '2018-12-31' # ending date of stock
+# Download the selected stocks from Yahoo finance using `quantmod` package
+getSymbols("DJI", src = "yahoo", from = start.date, to = end.date, auto.assign = TRUE)
+
+# Get close price 
+close_price = DJI$DJI.Close
+head(close_price)
+
+# Create date variable
+DJI <- zoo::fortify.zoo(DJI)
+DJI <- DJI %>% rename(c("Date" = "Index", "Close" = "DJI.Close"))
+
+# create a tsibble 
+DJI<- as_tsibble(DJI, index = Date)
+
+DJI <- DJI |>
+mutate(day = row_number()) |>
+update_tsibble(index = day, regular = TRUE) 
+
+DJI
+
+#Create train and test sets for GOOG
+DJI_train <- TSLA |>  filter(yearmonth(Date) <= yearmonth("2023 Sept"))
+DJI_test <- TSLA |> filter(yearmonth(Date) > yearmonth("2023 Oct"))
+```
