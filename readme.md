@@ -1,10 +1,4 @@
----
-title: "Time Series Project"
-author: "Your Name"
-date: "`r Sys.Date()`"
-output:
-  html_document:
-    theme: cosmo
----
+-
 
-# Time Series Project
+# DASC6510_STAT4990 Time Series Project
+This repository contains final term project for course DASC6510_STAT4990
