@@ -1,7 +1,7 @@
 library(quantmod)
 # Download data from yahoo Finance!
 start.date = '2021-10-01' # starting date of stock
-end.date = '2023-11-30' # ending date of stock
+end.date = '2023-11-29' # ending date of stock
 # Download the selected stocks from Yahoo finance using `quantmod` package
 getSymbols("DJI", src = "yahoo", from = start.date, to = end.date, auto.assign = TRUE)
 
