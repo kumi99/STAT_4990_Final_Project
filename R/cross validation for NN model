@@ -5,10 +5,9 @@ DJI_CV <- DJI|>
   relocate(Date, .id)
 head(DJI_CV)
 
-accuracy <- NN_fit |>
+accuracy_NN <- NN_fit |>
   forecast(h = 40, times = 10) |>
   accuracy(DJI)
-
-accuracy
+accuracy_NN
 
 ```
