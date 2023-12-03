@@ -1,0 +1,273 @@
+---
+title: "stat4990_pj"
+author: "Koki Yamanaka"
+date: "2023-11-30"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Introduction
+
+- The Dow Jones Industrial Average (^DJI) is a price-weighted index that tracks 30 large, public companies trading on the New York Stock Exchange and the Nasdaq. In a way, it represents the overall market and the largest sectors of U.S. economy. most expensive stocks on the index (UNH. HD, GS)
+- DJI current prices of 30 stocks make up index are added then divided by dow divisor.
+
+## imports
+```{r}
+library(quantmod) # download from yahoo 
+library(dplyr) # pipe operator
+library(tsibble)
+library(ggplot2) # autoplot 
+library(tidyverse)
+
+library(fable) # model()
+library(feasts) # model()
+
+# install.packages('patchwork')
+library(patchwork) # combine 2 plots 
+```
+
+## Data preparation (tsibble)
+```{r}
+# Download data from yahoo Finance!
+# extract 3 years as train set and 2 months as test
+start.date = '2020-10-01'     # starting date of stock
+end.date = '2023-11-28'       # ending date of stock
+
+# Download the selected stocks from Yahoo finance using `quantmod` package
+getSymbols("^DJI", src = "yahoo", from = start.date, to = end.date, auto.assign = TRUE)
+getSymbols("V", src = "yahoo", from = start.date, to = end.date, auto.assign = TRUE)
+
+# take close price
+DJI = DJI$DJI.Close
+V = V$V.Close
+ 
+# Create date variable and rename a few columns
+DJI <- zoo::fortify.zoo(DJI)
+DJI <- DJI %>% rename(c("Date" = "Index", "Close_dji" = "DJI.Close"))
+Visa <- zoo::fortify.zoo(V)
+Visa <- Visa %>% rename(c("Date" = "Index", "Close_visa" = "V.Close"))
+
+# merge DJI AND Visa in df zoo object
+data <- merge(DJI,Visa)
+
+# create a tsibble assign Date column as time index 
+data <- as_tsibble(data, index = Date)
+
+# create a new column to assign a unique row number to each row,, relocate unique row number to the front
+data <- data |>
+  mutate(day = row_number()) |>
+  update_tsibble(index = day, regular = TRUE) |> 
+  relocate(day)
+  
+# plot the close price of both
+data |> autoplot(Close_dji) +   labs(x = "2020-10-01 to 2023-11-29 Dow Jones data")
+data |> autoplot(Close_visa) +   labs(x = "2020-10-01 to 2023-11-29 Visa (Credit Card) data")
+``` 
+We see the plot are quite similar to each other. Note, visa accounts for 4% of dow jones index.  
+
+## Exploration 
+```{r c2}
+# normalize 2 closing prices using minmaxscaler 
+data <- data %>% # for dji 
+  mutate(normalize.close.dji = (Close_dji - min(Close_dji)) / (max(Close_dji) - min(Close_dji)))
+data <- data %>% # for visa 
+  mutate(normalize.close.visa = (Close_visa - min(Close_visa)) / (max(Close_visa) - min(Close_visa)))
+
+data 
+data |> autoplot(normalize.close.dji) 
+data |> autoplot(normalize.close.visa) 
+
+data |>
+  pivot_longer(c(normalize.close.dji, normalize.close.visa), names_to="Series") |>
+  autoplot(value) +
+  labs(y = "normalized price") + 
+  labs(x = "2020-10-01 to 2023-11-29 of DJI & Visa")
+```
+The moving pattern are quite similar. 
+
+## Correlation analysis   
+```{r c3}
+# plot normalize.close.visa vs normalize.close.dji 
+data %>%
+  ggplot(aes(x = normalize.close.visa, y = normalize.close.dji)) +
+  labs(y = "normalize.close.dji price",
+  x = "normalize.close.visa price") +
+  geom_point() + geom_smooth(method = "lm", se = FALSE)
+```
+There is a positive correlation between visa and dji. 
+Overall data follows homoscedasticity, but bottom left has some heteroscedasticity. 
+
+## train/test split 
+```{r c4}
+# filter train set   
+train_dow_jones <- data |>
+  filter(between(Date, as.Date("2020-10-01"), as.Date("2023-09-30")))
+# filter test set 
+test_dow_jones <- data  |>
+  filter(between(Date, as.Date("2023-10-01"), as.Date("2023-11-29")))
+# note : weekends observation is omitted.
+```
+
+# Linear regression
+
+## Fit a time series linear regression model  
+```{r c5}
+ # Fit a time series linear regression model with close_visa as predictors 
+fit_cons <- train_dow_jones %>%
+  model(lm = TSLM(Close_dji ~ Close_visa)) 
+# report the results
+report(fit_cons)
+```
+
+## Plot fit model on actual observations  
+```{r c6}
+augment(fit_cons) |> 
+  ggplot(aes(x = train_dow_jones$Date)) +
+  geom_line(aes(y = Close_dji, colour = "Data")) +
+  geom_line(aes(y = .fitted, colour = "Fitted")) +
+  labs(y = NULL,
+    title = "Fit vs actual in close price of DJI"
+  ) +
+  scale_colour_manual(values=c(Data="black",Fitted="#D55E00")) +
+  guides(colour = guide_legend(title = NULL))
+```
+our model somehow fit the actual observations. notice, is exact visa price
+
+
+ 
+
+## Check residuals 
+```{r c7}
+fit_cons %>% gg_tsresiduals()
+```
+- The residuals seems reasonable. Because,first 200 days follows an upward-trend which reflects our actual observations. 
+- After 200 days, residuals bounds close to 0, which indicates some white noise. (random walk).  The  
+- Our distribution somehow follows normal.
+- Thus, we say our model is suitable for series after day 200th. 
+
+
+ 
+
+# Dynamic regression 
+Recall : a regression model with other predictors and errors are correlated. 
+correlated errors capture past sequences to improve accuracy.  
+
+dynamic regression models used for better capturing information left in the residuals from linear regression. 
+## fit 
+```{r c9}
+# Fit a dynamic regression model and visa close as predictor 
+fit_lr_sarima <- train_dow_jones %>%
+  model(ARIMA(Close_dji ~ Close_visa))
+
+# report the results 
+report(fit_lr_sarima)
+```
+- we see dynamic's coefficient is 66.05 which is less than static regression. This implies dynamic allocate more weights to the series in close_dji itself rather than the predictors.   
+- best fitted is ARIMA(0,1,0) errors. This suggests residuals/unexplained variability in the our Dow Jones index follows a random walk. This reflect back to our actual observation. 
+
+```{r 1112}
+augment(fit_lr_sarima) |> 
+  ggplot(aes(x = train_dow_jones$Date)) +
+  geom_line(aes(y = Close_dji, colour = "Data")) +
+  geom_line(aes(y = .fitted, colour = "Fitted")) +
+  labs(y = NULL,
+    title = "Fit vs actual in close price of DJI"
+  ) +
+  scale_colour_manual(values=c(Data="black",Fitted="#D55E00")) +
+  guides(colour = guide_legend(title = NULL))
+```
+## residual check (compare with static and dynamic regression)
+```{r c10}
+# plot residuals for dynamic regression  
+residuals(fit_lr_sarima, type='innovation') %>%
+gg_tsdisplay(.resid, plot_type = 'partial') +
+labs(title = "ARIMA errors")
+
+# plot residuals for static regression  
+residuals(fit_cons, type='innovation') %>%
+gg_tsdisplay(.resid, plot_type = 'partial') +
+labs(title = "Regression errors")
+
+```
+Residuals : In ARIMA errors, residuals are bounded around 0 in overall, which captures patterns in our index well.
+
+ACF : In dynamic, each autocorrelation is close to zero and no 1 or more large spikes outside of confidence interval, thus series is a white noise. This suggests DJI is influenced by numerous unpredictable factors. In static regression, we see small lags are large, positive, has geometric, which imply a trend. This means our regression were only able to capture patterns in the big picture. 
+
+PACF : In Dynamic, its the same as ACF, suggests series is white noise. In static, PACF has large lag 1 spike, which indicates 1 day back influences the model very large. 
+
+From these inspect, dynamic model has captures adequate autocorrelations for DJI than static. 
+
+
+## forecast and plot  
+```{r c12}
+# shorten the dataset to capture forecast plot better 
+data_for_plot <- data |> 
+  filter(between(Date, as.Date("2022-10-01"), as.Date("2023-09-30")))
+
+# fit 2 models on train set 
+fit_2model <- train_dow_jones %>%
+  model(
+    ARIMA(Close_dji ~ Close_visa),
+    TSLM(Close_dji ~ Close_visa)
+    )
+# forecast 2 models on test set 
+forecast_2model <- forecast(fit_2model,test_dow_jones)
+
+
+# plot forecast on most recent period 
+forecast_2model |> 
+  autoplot (data_for_plot) +
+  xlab("2020-10-01 to 2023-11-29 Dow Jones (forecast)") +
+  ylab("DJI")
+# plot original data 
+autoplot (data_for_plot) +
+  xlab("2020-10-01 to 2023-11-29 Dow Jones") +
+  ylab("DJI")
+```
+
+## accuracy 
+```{r c1231}
+# get accuracy for test set 
+accuracy(forecast_2model,data)
+```
+ARIMA error has less RMSE than TSLM, thus RMSE is a better model. 
+This implies TSlM fail to capture the dynamics in the actual observations.
+
+## cross valiadation
+```{r c13}
+ 
+# extract the column needed to do cross-valid to avoid computation
+train_dji <- train_dow_jones %>%
+  select(Date,Close_dji,Close_visa)
+
+# create cross validation set (creates 59,964 new data, 114 unique set)
+cv_stocks <- train_dji |>
+  stretch_tsibble(.init = 200, .step = 2) 
+
+# check accuracy on cross validation 
+fit.arima.cv <- cv_stocks |>      # arima error
+  model(ARIMA(Close_dji ~ Close_visa))
+fit.tslm.cv <- cv_stocks |>       # linear regression 
+  model(TSLM(Close_dji ~ Close_visa))
+
+# get accuracy 
+acrc_arima <- fit.arima.cv |> accuracy()
+acrc_tslm <- fit.tslm.cv |> accuracy()
+
+# get mean of RMSE 
+mean(acrc_arima$RMSE)
+mean(acrc_tslm$RMSE)
+
+## accuracy for train set 
+# fit 2 models on train set 
+fit_2model |> accuracy()
+```
+In cross validation/ train set, ARIMA also perform better. However, cross validation results to have a smaller error in RMSE.
+
+
+
+ 
