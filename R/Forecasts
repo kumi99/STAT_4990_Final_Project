@@ -1,3 +1,10 @@
+---
+title: "Kumari_Herath_T00655616"
+author: "Kumari Herath"
+date: "2023-12-01"
+output: pdf_document
+---
+
 ```{r}
 library(tsibble)
 library(fpp3)
@@ -57,7 +64,7 @@ summary(DJI)
 # Fit the models
 
 # Fit Benchmark model
-Benchmark_fit <- new_data_train |>
+Benchmark_fit <- DJI_train |>
   model( NAIVE(Close),
          MEAN(Close),
          RW(Close ~ drift())
@@ -78,7 +85,7 @@ report(NN_fit)
 ```
 
 ```{r}
-#Get best fir ARIMA Model
+#Get best fit ARIMA Model
 arima_fit <- DJI_train |>
 model(
 arima010 = ARIMA(Close ~ 1 + pdq(0, 1, 0)),
@@ -129,15 +136,27 @@ augment(NN_fit) %>% features(.resid, ljung_box, lag=10, dof=0)
 ```
 
 ```{r}
-accuracy <- DJI_fit |>
+# For ARIMA model:
+# ACF function shows that the residuals are white noise.
+# The residual follows a normal distribution.
+
+# For NN model:
+# ACF function shows that the residuals are white noise.
+# The residual follows a normal distribution.
+ 
+```
+
+
+```{r}
+accuracy <- Benchmark_fit |>
   forecast(h = 2) |>
   accuracy(DJI)
 
 accuracy
 
 accuracy_NN_fit <- NN_fit |>
-  forecast(h = 2,times = 9) |>
-  accuracy(new_data)
+  forecast(h = 40 ,times = 10) |>
+  accuracy(DJI)
 
 accuracy_NN_fit
 
@@ -193,7 +212,22 @@ drift_fit_model |>
 
 ```{r}
 # Even though MEAN model has the smallest RMSE, the certainty of the forecast is less than other methods.
-# Therefore, I choose NN model as the best model among these model and it has the second smallest RMSE value,
-# and NN RMSE is not very larger than MEAN RMSE. 
+# Therefore, I choose NAIVE model as the best model among these model and it has the second smallest RMSE value,
+# and NAIVE RMSE is not very larger than MEAN RMSE. 
+
+```
+
+```{r}
+# cross validation
+DJI_CV <- DJI|>
+  stretch_tsibble(.init = 300, .step = 1) |>
+  relocate(Date, .id)
+head(DJI_CV)
+
+accuracy_NAIVE <- naive_fit_model |>
+  forecast(h = 40) |>
+  accuracy(DJI)
+
+accuracy_NAIVE
 
 ```
