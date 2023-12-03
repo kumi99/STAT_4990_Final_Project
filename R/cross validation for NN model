@@ -1,0 +1,14 @@
+```{r}
+# cross validation
+DJI_CV <- DJI|>
+  stretch_tsibble(.init = 300, .step = 1) |>
+  relocate(Date, .id)
+head(DJI_CV)
+
+accuracy <- NN_fit |>
+  forecast(h = 40, times = 10) |>
+  accuracy(DJI)
+
+accuracy
+
+```
