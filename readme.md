@@ -26,6 +26,7 @@ the best and most reasonable forecast method for the DJI
 
 Each different file has tested with various models. 
 - `Benchmark_neural_Kumari` : Benchmark(Naive,Drift,Mean), ARIMA, neural network
+     - dafeaf
 - `Prophet_ewma` : EWMA, Prophet
 - `Dynamic_Linear_Koki` : Dynamic regression and simple linear regression 
 
