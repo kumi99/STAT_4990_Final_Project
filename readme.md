@@ -21,9 +21,23 @@ effective in predicting the fluctuations of the DJI. To conclude, we analyzed mo
 visualization for NAÏVE, Dynamic and Prophet models and decided that the NAÏVE method is
 the best and most reasonable forecast method for the DJI
 
-## descriptions of files 
-- 'R' file contains all the experiments   
+## Descriptions of files 
+- The 'R' file houses all the experiments conducted for this project.
 
+Each different file has tested with various models. 
+- Benchmark_neural_Kumari : Benchmark(Naive,Drift,Mean), ARIMA, neural network
+- Prophet_ewma : EWMA, Prophet
+- Dynamic_Linear_Koki : Dynamic regression and simple linear regression 
 
+## Requirements/installation 
+1. To install and load time series packages in Rstudio 
+   ```sh
+   install.packages('tsibble') / library(tsibble) 
+   ```
+2. Some key packages includes
+   - quantmod : Downloading financial data from Yahoo, dplyr :  Employing the pipe operator (%>%) for seamless data manipulation,  tsibble:  Structuring and manipulating time series data efficiently.
+   - ggplot2 : Employing autoplot for quick and convenient plotting, fable : Utilizing the model() function for time series modeling
+
+   
 ## Authors
 Alisa Dmitrieva, Koki Yamanaka, Kumari Herath
