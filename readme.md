@@ -28,8 +28,8 @@ Each different file contains tests with various models. In each file, it contain
 - `Benchmark_neural_Kumari` : Benchmark(Naive,Drift,Mean), ARIMA, neural network
 - `Prophet_ewma` : EWMA, Prophet
 - `Dynamic_Linear_Koki` : Dynamic regression and simple linear regression
-     `visa_predictors.pdf` :  TSLM and DR ARIMA(0,1,0) on visa predictor 
-     `big_market_predictorss.pdf` : DR - ARIMA(3,1,3), DR - ARIMA(0,1,1), DR - ARIMA(0,1,3) on big market predictors 
+     - `visa_predictors.pdf` :  TSLM and DR ARIMA(0,1,0) on visa predictor 
+     - `big_market_predictorss.pdf` : DR - ARIMA(3,1,3), DR - ARIMA(0,1,1), DR - ARIMA(0,1,3) on big market predictors 
 
   
 ## Requirements/installation 
