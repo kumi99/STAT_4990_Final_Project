@@ -22,12 +22,12 @@ visualization for NAÏVE, Dynamic and Prophet models and decided that the NAÏVE
 the best and most reasonable forecast method for the DJI
 
 ## Descriptions of files 
-- The (`R`) file houses all the experiments conducted for this project.
+- The `R` file houses all the experiments conducted for this project.
 
 Each different file has tested with various models. 
-- (`Benchmark_neural_Kumari`) : Benchmark(Naive,Drift,Mean), ARIMA, neural network
-- (`Prophet_ewma`) : EWMA, Prophet
-- (`Dynamic_Linear_Koki`) : Dynamic regression and simple linear regression 
+- `Benchmark_neural_Kumari` : Benchmark(Naive,Drift,Mean), ARIMA, neural network
+- `Prophet_ewma` : EWMA, Prophet
+- `Dynamic_Linear_Koki` : Dynamic regression and simple linear regression 
 
 ## Requirements/installation 
 1. To install and load time series packages in Rstudio 
