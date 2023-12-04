@@ -22,5 +22,8 @@ visualization for NAÏVE, Dynamic and Prophet models and decided that the NAÏVE
 the best and most reasonable forecast method for the DJI
 
 ## descriptions of files 
-- 'R' file contains all  
-- dataset contains the time series data weekly walmart sales 
+- 'R' file contains all the experiments   
+
+
+## Authors
+Alisa Dmitrieva, Koki Yamanaka, Kumari Herath
