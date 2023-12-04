@@ -24,12 +24,14 @@ the best and most reasonable forecast method for the DJI
 ## Descriptions of files 
 - The `R` file houses all the experiments conducted for this project.
 
-Each different file has tested with various models. 
+Each different file contains tests with various models. In each file, it contains a pdf version of Rmarkdown code.  
 - `Benchmark_neural_Kumari` : Benchmark(Naive,Drift,Mean), ARIMA, neural network
-     - dafeaf
 - `Prophet_ewma` : EWMA, Prophet
-- `Dynamic_Linear_Koki` : Dynamic regression and simple linear regression 
+- `Dynamic_Linear_Koki` : Dynamic regression and simple linear regression
+     `visa_predictors.pdf` :  TSLM and DR ARIMA(0,1,0) on visa predictor 
+     `big_market_predictorss.pdf` : DR - ARIMA(3,1,3), DR - ARIMA(0,1,1), DR - ARIMA(0,1,3) on big market predictors 
 
+  
 ## Requirements/installation 
 1. To install and load time series packages in Rstudio 
    ```sh
