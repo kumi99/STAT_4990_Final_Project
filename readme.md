@@ -22,7 +22,10 @@ visualization for NAÏVE, Dynamic and Prophet models and decided that the NAÏVE
 the best and most reasonable forecast method for the DJI
 
 ## Descriptions of files 
-- The `R` file houses all the experiments conducted for this project.
+
+The `group_stat4990_project_paper_.pdf` contains the main paper. 
+
+The `R` file houses all the experiments conducted for this project. 
 
 Each different file contains tests with various models. In each file, it contains a pdf version of Rmarkdown code.  
 1. `Benchmark_neural_Kumari` : Benchmark(Naive,Drift,Mean), ARIMA, neural network
@@ -31,6 +34,7 @@ Each different file contains tests with various models. In each file, it contain
      - `visa_predictors.pdf` :  TSLM and DR ARIMA(0,1,0) on visa predictor 
      - `big_market_predictorss.pdf` : DR - ARIMA(3,1,3), DR - ARIMA(0,1,1), DR - ARIMA(0,1,3) on big market predictors 
 
+ 
   
 ## Requirements/installation 
 1. To install and load time series packages in Rstudio 
