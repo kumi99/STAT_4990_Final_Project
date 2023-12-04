@@ -34,10 +34,11 @@ Each different file has tested with various models.
    ```sh
    install.packages('tsibble') / library(tsibble) 
    ```
-2. Some key packages includes
+2. Some key packages includes.
+   ```sh
    - quantmod : Downloading financial data from Yahoo, dplyr :  Employing the pipe operator (%>%) for seamless data manipulation,  tsibble:  Structuring and manipulating time series data efficiently.
    - ggplot2 : Employing autoplot for quick and convenient plotting, fable : Utilizing the model() function for time series modeling
-
+   ```
    
 ## Authors
 Alisa Dmitrieva, Koki Yamanaka, Kumari Herath
