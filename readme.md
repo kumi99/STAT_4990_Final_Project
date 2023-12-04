@@ -23,14 +23,14 @@ the best and most reasonable forecast method for the DJI
 
 ## Descriptions of files 
 
-The `group_stat4990_project_paper_.pdf` contains the main paper. 
+1. The `group_stat4990_project_paper_.pdf` contains the main paper. 
 
-The `R` file houses all the experiments conducted for this project. 
+2. The `R` file houses all the experiments conducted for this project. 
 
 Each different file contains tests with various models. In each file, it contains a pdf version of Rmarkdown code.  
-1. `Benchmark_neural_Kumari` : Benchmark(Naive,Drift,Mean), ARIMA, neural network
-2. `Prophet_ewma` : EWMA, Prophet
-3. `Dynamic_Linear_Koki` : Dynamic regression and simple linear regression
+a. `Benchmark_neural_Kumari` : Benchmark(Naive,Drift,Mean), ARIMA, neural network
+b. `Prophet_ewma` : EWMA, Prophet
+c. `Dynamic_Linear_Koki` : Dynamic regression and simple linear regression
      - `visa_predictors.pdf` :  TSLM and DR ARIMA(0,1,0) on visa predictor 
      - `big_market_predictorss.pdf` : DR - ARIMA(3,1,3), DR - ARIMA(0,1,1), DR - ARIMA(0,1,3) on big market predictors 
 
